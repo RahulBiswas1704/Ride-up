@@ -28,7 +28,7 @@ export default function LoginScreen() {
       >
         <View className="items-center mb-10">
           <Ionicons name="speedometer" size={80} color="#E0FF00" />
-          <Text className="text-white text-4xl font-black uppercase tracking-widest mt-4">Rydyt</Text>
+          <Text className="text-white text-4xl font-black uppercase tracking-widest mt-4">Ride-Up</Text>
           <Text className="text-textSecondary text-sm font-bold tracking-widest uppercase mt-2">
             {isLogin ? 'Welcome Back' : 'Join the Pack'}
           </Text>

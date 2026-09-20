@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "rydyt-clone",
-    "slug": "rydyt-clone",
+    "name": "Ride-Up",
+    "slug": "ride-up",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rydytclone",
+    "scheme": "rideup",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
@@ -32,7 +32,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.anonymous.rydytclone"
+      "package": "com.anonymous.rideup"
     },
     "web": {
       "output": "static",
@@ -52,7 +52,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Rydyt to use your location for group ride tracking."
+          "locationAlwaysAndWhenInUsePermission": "Allow Ride-Up to use your location for group ride tracking."
         }
       ]
     ],

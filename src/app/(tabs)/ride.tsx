@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useRideLocation } from '../../hooks/useRideLocation';
 import { useCrashDetection } from '../../hooks/useCrashDetection';
 import { useAgoraVoice } from '../../hooks/useAgoraVoice';
@@ -106,6 +106,16 @@ const MOCK_RIDERS = [
   }
 ];
 
+// Mock Route Polyline Data
+const MOCK_ROUTE = [
+  { latitude: 22.581, longitude: 88.471 },
+  { latitude: 22.583, longitude: 88.474 },
+  { latitude: 22.586, longitude: 88.472 },
+  { latitude: 22.588, longitude: 88.475 },
+  { latitude: 22.590, longitude: 88.473 },
+  { latitude: 22.594, longitude: 88.478 },
+];
+
 export default function RideScreen() {
   const { location, errorMsg } = useRideLocation();
   const { triggerSOS } = useSOSStore();
@@ -163,6 +173,16 @@ export default function RideScreen() {
             />
           </Marker>
         ))}
+
+        {/* Route Polyline Layer */}
+        <Polyline
+          coordinates={MOCK_ROUTE}
+          strokeColor="#E0FF00" // Neon Yellow route
+          strokeWidth={6}
+          lineCap="round"
+          lineJoin="round"
+          geodesic={true}
+        />
       </MapView>
 
       {/* HUD Overlays */}

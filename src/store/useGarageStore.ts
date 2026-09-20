@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { db } from '../services/firebase';
-import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
 import { Alert } from 'react-native';
+import { useAuthStore } from './useAuthStore';
 
 export type GarageLog = {
   id: string;
@@ -27,8 +28,6 @@ type GarageState = {
   deleteLog: (id: string) => Promise<void>;
 };
 
-// DUMMY_USER_ID for testing inserts before full auth is setup
-const DUMMY_USER_ID = 'test-firebase-user-123'; 
 
 export const useGarageStore = create<GarageState>((set, get) => ({
   logs: [],
@@ -38,7 +37,17 @@ export const useGarageStore = create<GarageState>((set, get) => ({
   fetchLogs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const q = query(collection(db, 'garage_logs'), orderBy('service_date', 'desc'));
+      const userId = useAuthStore.getState().user?.uid;
+      if (!userId) {
+        set({ logs: [], isLoading: false });
+        return;
+      }
+
+      const q = query(
+        collection(db, 'garage_logs'), 
+        where('user_id', '==', userId),
+        orderBy('service_date', 'desc')
+      );
       const querySnapshot = await getDocs(q);
       
       const fetchedLogs: GarageLog[] = [];
@@ -59,9 +68,12 @@ export const useGarageStore = create<GarageState>((set, get) => ({
   addLog: async (log) => {
     set({ isLoading: true, error: null });
     try {
+      const userId = useAuthStore.getState().user?.uid;
+      if (!userId) throw new Error("Must be logged in to add a log");
+
       const newLog = {
         ...log,
-        user_id: DUMMY_USER_ID,
+        user_id: userId,
         motorcycle_make: log.motorcycle_make || 'Yamaha',
         motorcycle_model: log.motorcycle_model || 'MT-07',
         created_at: new Date().toISOString()

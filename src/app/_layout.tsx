@@ -1,36 +1,56 @@
 import "../global.css";
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { useAuthStore } from '../store/useAuthStore';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { user, initialized, initAuthListener } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
   
-  // You can load custom fonts here in the future
   const [loaded] = useFonts({
     // Inter: require('../assets/fonts/Inter-Regular.ttf'),
   });
 
+  // Start listening to Firebase Auth state on app load
   useEffect(() => {
-    if (loaded) {
+    initAuthListener();
+  }, []);
+
+  // Hide splash screen when fonts are loaded and auth is initialized
+  useEffect(() => {
+    if (loaded && initialized) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, initialized]);
 
-  if (!loaded) {
+  // Auth Guard
+  useEffect(() => {
+    if (!initialized) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
+      // Not signed in? Redirect to login
+      router.replace('/(auth)/login');
+    } else if (user && inAuthGroup) {
+      // Signed in and trying to access auth screens? Redirect to home
+      router.replace('/(tabs)');
+    }
+  }, [user, initialized, segments]);
+
+  if (!loaded || !initialized) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+    </Stack>
   );
 }

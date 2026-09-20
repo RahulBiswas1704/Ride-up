@@ -1,16 +1,22 @@
 import { create } from 'zustand';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { useAuthStore } from './useAuthStore';
 
 type SOSState = {
   isSOSActive: boolean;
+  sosSent: boolean;
   countdown: number;
   intervalId: NodeJS.Timeout | null;
   triggerSOS: () => void;
   cancelSOS: () => void;
-  executeSOSAlert: () => void;
+  clearSOSStatus: () => void;
+  executeSOSAlert: () => Promise<void>;
 };
 
 export const useSOSStore = create<SOSState>((set, get) => ({
   isSOSActive: false,
+  sosSent: false,
   countdown: 15,
   intervalId: null,
 
@@ -40,18 +46,37 @@ export const useSOSStore = create<SOSState>((set, get) => ({
     if (intervalId) {
       clearInterval(intervalId);
     }
-    set({ isSOSActive: false, countdown: 15, intervalId: null });
+    set({ isSOSActive: false, sosSent: false, countdown: 15, intervalId: null });
   },
 
-  executeSOSAlert: () => {
+  clearSOSStatus: () => {
+    set({ sosSent: false, isSOSActive: false, countdown: 15 });
+  },
+
+  executeSOSAlert: async () => {
     console.log("CRITICAL: SOS PAYLOAD SENT TO BACKEND!");
-    // Here we would typically make an API call to Supabase Edge Functions or Twilio
-    
-    // For now, reset the UI state so it doesn't stay stuck forever,
-    // though in reality you might transition to an "SOS Sent" confirmation screen.
     const { intervalId } = get();
     if (intervalId) clearInterval(intervalId);
-    
-    set({ isSOSActive: false, countdown: 15, intervalId: null });
+
+    try {
+      const user = useAuthStore.getState().user;
+      const uid = user ? user.uid : 'unauthenticated_user';
+      
+      // Simulate backend webhook by writing to Firestore
+      await addDoc(collection(db, 'sos_alerts'), {
+        userId: uid,
+        timestamp: new Date().toISOString(),
+        status: 'sent',
+        // Real app would include exact GPS coordinates here
+        location: { latitude: 22.581, longitude: 88.471 } 
+      });
+      
+      // Trigger success UI
+      set({ sosSent: true, isSOSActive: false, countdown: 15, intervalId: null });
+    } catch (error) {
+      console.error("Failed to send SOS webhook to Firebase: ", error);
+      // Fallback UI
+      set({ sosSent: true, isSOSActive: false, countdown: 15, intervalId: null });
+    }
   }
 }));

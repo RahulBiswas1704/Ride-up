@@ -4,11 +4,11 @@
     "slug": "ride-up",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/rideup-icon.jpg",
     "scheme": "rideup",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/rideup-icon.jpg",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "We need your microphone for rider-to-rider group intercom",
         "UIBackgroundModes": [
@@ -18,10 +18,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundColor": "#121212",
+        "foregroundImage": "./assets/images/rideup-icon.jpg",
         "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "monochromeImage": "./assets/images/rideup-icon.jpg"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -36,16 +36,16 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/rideup-icon.jpg"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#121212",
+          "image": "./assets/images/rideup-icon.jpg",
+          "imageWidth": 200
         }
       ],
       "@react-native-community/datetimepicker",

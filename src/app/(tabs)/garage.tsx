@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, SafeAreaView, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, SafeAreaView, Platform, ImageBackground } from 'react-native';
 import { useGarageStore } from '../../store/useGarageStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons'; // Assuming expo vector icons are available
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GarageScreen() {
   const { logs, isLoading, fetchLogs, addLog, deleteLog } = useGarageStore();
@@ -14,6 +16,11 @@ export default function GarageScreen() {
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Focus states for premium inputs
+  const [isServiceFocused, setIsServiceFocused] = useState(false);
+  const [isCostFocused, setIsCostFocused] = useState(false);
+  const [isNotesFocused, setIsNotesFocused] = useState(false);
 
   useEffect(() => {
     fetchLogs();
@@ -30,12 +37,10 @@ export default function GarageScreen() {
       cost: cost ? parseFloat(cost) : null,
       description: notes,
       service_date: date.toISOString(),
-      // Adding dummy bike data since UI for bike selection isn't built yet
       motorcycle_make: 'Yamaha',
       motorcycle_model: 'MT-07',
     });
     
-    // Reset and close
     setModalVisible(false);
     setServiceType('');
     setCost('');
@@ -57,59 +62,95 @@ export default function GarageScreen() {
   };
 
   const renderItem = ({ item }: { item: any }) => (
-    <View className="bg-surface rounded-xl p-4 mb-4 flex-row justify-between items-center shadow-sm">
+    <BlurView intensity={20} tint="dark" className="rounded-2xl p-5 mb-4 border border-white/10 overflow-hidden flex-row justify-between items-center shadow-lg">
       <View className="flex-1 mr-4">
         <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-lg font-bold text-textPrimary">{item.service_type}</Text>
-          <Text className="text-primary font-bold">
+          <Text className="text-lg font-bold text-white tracking-wider">{item.service_type}</Text>
+          <Text className="text-[#FF5E00] font-black text-lg">
             {item.cost ? `$${item.cost.toFixed(2)}` : 'N/A'}
           </Text>
         </View>
-        <Text className="text-textSecondary text-sm mb-2">
-          {new Date(item.service_date).toLocaleDateString()} • {item.motorcycle_make} {item.motorcycle_model}
+        <Text className="text-[#8E8E93] text-xs uppercase tracking-widest font-bold mb-3">
+          {new Date(item.service_date).toLocaleDateString()}
         </Text>
         {item.description && (
-          <Text className="text-textSecondary" numberOfLines={2}>{item.description}</Text>
+          <Text className="text-white/70 text-sm" numberOfLines={2}>{item.description}</Text>
         )}
       </View>
-      <TouchableOpacity onPress={() => confirmDelete(item.id)} className="p-2">
-        <Ionicons name="trash-outline" size={24} color="#FF3B30" />
+      <TouchableOpacity onPress={() => confirmDelete(item.id)} className="p-3 bg-red-500/10 rounded-full border border-red-500/20">
+        <Ionicons name="trash-outline" size={20} color="#FF3B30" />
       </TouchableOpacity>
-    </View>
+    </BlurView>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 pt-4 pb-2 flex-row justify-between items-center">
-        <Text className="text-3xl font-bold text-textPrimary">My Garage</Text>
-        <TouchableOpacity 
-          className="bg-primary rounded-full p-2 h-12 w-12 items-center justify-center shadow-lg"
-          onPress={() => setModalVisible(true)}
+    <View className="flex-1 bg-black">
+      {/* Hero Section */}
+      <View className="h-[40%] w-full">
+        <ImageBackground 
+          source={require('../../../assets/images/garage-hero.jpg')} 
+          className="flex-1 justify-end"
+          resizeMode="cover"
         >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.8)', '#000000']}
+            className="absolute inset-0"
+          />
+          <SafeAreaView>
+            <View className="px-6 pb-6">
+              <Text className="text-[#8E8E93] text-xs font-bold tracking-[0.3em] uppercase mb-1">Active Ride</Text>
+              <Text className="text-white text-4xl font-light tracking-widest mb-1">YAMAHA</Text>
+              <Text className="text-[#FF5E00] text-5xl font-black tracking-tighter">MT-07</Text>
+              <View className="flex-row mt-4 space-x-4">
+                <View className="bg-white/10 px-3 py-1.5 rounded-full border border-white/20">
+                  <Text className="text-white text-xs font-bold">12,450 MI</Text>
+                </View>
+                <View className="bg-white/10 px-3 py-1.5 rounded-full border border-white/20">
+                  <Text className="text-white text-xs font-bold">689 CC</Text>
+                </View>
+              </View>
+            </View>
+          </SafeAreaView>
+        </ImageBackground>
       </View>
 
-      {isLoading && logs.length === 0 ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF5E00" />
+      {/* Maintenance Logs List */}
+      <View className="flex-1 px-4 pt-2">
+        <View className="flex-row items-center justify-between mb-4 px-2">
+          <Text className="text-white/60 text-sm font-bold uppercase tracking-widest">Service History</Text>
         </View>
-      ) : (
-        <FlatList
-          data={logs}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={{ padding: 16 }}
-          ListEmptyComponent={
-            <View className="flex-1 items-center justify-center mt-20">
-              <Ionicons name="construct-outline" size={64} color="#A0A0A0" className="mb-4" />
-              <Text className="text-textSecondary text-center text-lg mt-4 px-8">
-                No maintenance logged yet. Keep your machine running smoothly.
-              </Text>
-            </View>
-          }
-        />
-      )}
+
+        {isLoading && logs.length === 0 ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#FF5E00" />
+          </View>
+        ) : (
+          <FlatList
+            data={logs}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            ListEmptyComponent={
+              <View className="flex-1 items-center justify-center mt-20 opacity-50">
+                <Ionicons name="construct-outline" size={64} color="#8E8E93" className="mb-4" />
+                <Text className="text-[#8E8E93] text-center text-sm uppercase tracking-widest font-bold mt-4 px-8">
+                  No maintenance logged.
+                </Text>
+              </View>
+            }
+          />
+        )}
+      </View>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity 
+        className="absolute bottom-6 right-6 bg-[#FF5E00] rounded-full h-16 w-16 items-center justify-center shadow-[0_0_20px_rgba(255,94,0,0.5)] border border-white/20"
+        onPress={() => setModalVisible(true)}
+        activeOpacity={0.9}
+      >
+        <Ionicons name="add" size={32} color="#FFFFFF" />
+      </TouchableOpacity>
 
       {/* Add Maintenance Log Modal */}
       <Modal
@@ -118,35 +159,39 @@ export default function GarageScreen() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-surface rounded-t-3xl p-6 h-[80%]">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-bold text-textPrimary">Add Maintenance Log</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#A0A0A0" />
+        <View className="flex-1 justify-end bg-black/80">
+          <BlurView intensity={30} tint="dark" className="rounded-t-3xl border-t border-white/10 p-6 pt-8 h-[85%]">
+            <View className="flex-row justify-between items-center mb-10">
+              <Text className="text-3xl font-light text-white tracking-widest">ADD LOG</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)} className="bg-white/10 p-2 rounded-full">
+                <Ionicons name="close" size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
 
-            <View className="space-y-4">
-              <View className="mb-4">
-                <Text className="text-textSecondary mb-2 font-semibold">Service Type</Text>
-                <TextInput
-                  className="bg-background text-textPrimary rounded-xl p-4 text-lg border border-gray-800"
-                  placeholder="e.g. Oil Change, Tire Replacement"
-                  placeholderTextColor="#A0A0A0"
-                  value={serviceType}
-                  onChangeText={setServiceType}
-                />
+            <View className="space-y-6">
+              <View>
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Service Type</Text>
+                <View className={`border-b-2 ${isServiceFocused ? 'border-[#FF5E00]' : 'border-white/20'} pb-2 transition-colors`}>
+                  <TextInput
+                    className="text-white font-medium text-lg px-1"
+                    placeholder="e.g. Oil Change, Tires"
+                    placeholderTextColor="#666666"
+                    value={serviceType}
+                    onChangeText={setServiceType}
+                    onFocus={() => setIsServiceFocused(true)}
+                    onBlur={() => setIsServiceFocused(false)}
+                  />
+                </View>
               </View>
 
-              <View className="mb-4">
-                <Text className="text-textSecondary mb-2 font-semibold">Date</Text>
+              <View>
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Date</Text>
                 <TouchableOpacity 
-                  className="bg-background rounded-xl p-4 border border-gray-800 flex-row items-center justify-between"
+                  className="border-b-2 border-white/20 pb-2 flex-row items-center justify-between px-1 py-1"
                   onPress={() => setShowDatePicker(true)}
                 >
-                  <Text className="text-textPrimary text-lg">{date.toLocaleDateString()}</Text>
-                  <Ionicons name="calendar-outline" size={24} color="#FF5E00" />
+                  <Text className="text-white font-medium text-lg">{date.toLocaleDateString()}</Text>
+                  <Ionicons name="calendar-outline" size={22} color="#FF5E00" />
                 </TouchableOpacity>
                 {showDatePicker && (
                   <DateTimePicker
@@ -158,42 +203,52 @@ export default function GarageScreen() {
                 )}
               </View>
 
-              <View className="mb-4">
-                <Text className="text-textSecondary mb-2 font-semibold">Cost ($)</Text>
-                <TextInput
-                  className="bg-background text-textPrimary rounded-xl p-4 text-lg border border-gray-800"
-                  placeholder="0.00"
-                  placeholderTextColor="#A0A0A0"
-                  keyboardType="decimal-pad"
-                  value={cost}
-                  onChangeText={setCost}
-                />
+              <View>
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Cost ($)</Text>
+                <View className={`border-b-2 ${isCostFocused ? 'border-[#FF5E00]' : 'border-white/20'} pb-2 transition-colors flex-row items-center`}>
+                  <Text className="text-[#FF5E00] font-bold text-lg mr-2">$</Text>
+                  <TextInput
+                    className="text-white font-medium text-lg flex-1 px-1"
+                    placeholder="0.00"
+                    placeholderTextColor="#666666"
+                    keyboardType="decimal-pad"
+                    value={cost}
+                    onChangeText={setCost}
+                    onFocus={() => setIsCostFocused(true)}
+                    onBlur={() => setIsCostFocused(false)}
+                  />
+                </View>
               </View>
 
-              <View className="mb-6">
-                <Text className="text-textSecondary mb-2 font-semibold">Notes</Text>
-                <TextInput
-                  className="bg-background text-textPrimary rounded-xl p-4 text-lg border border-gray-800"
-                  placeholder="Any extra details..."
-                  placeholderTextColor="#A0A0A0"
-                  multiline
-                  numberOfLines={4}
-                  textAlignVertical="top"
-                  value={notes}
-                  onChangeText={setNotes}
-                />
+              <View>
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Notes</Text>
+                <View className={`border-b-2 ${isNotesFocused ? 'border-[#FF5E00]' : 'border-white/20'} pb-2 transition-colors`}>
+                  <TextInput
+                    className="text-white font-medium text-lg px-1"
+                    placeholder="Any extra details..."
+                    placeholderTextColor="#666666"
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    value={notes}
+                    onChangeText={setNotes}
+                    onFocus={() => setIsNotesFocused(true)}
+                    onBlur={() => setIsNotesFocused(false)}
+                  />
+                </View>
               </View>
 
               <TouchableOpacity 
-                className="bg-primary rounded-xl p-4 items-center shadow-lg"
+                className="bg-white rounded-full py-4 items-center shadow-lg mt-8 border border-white/20"
                 onPress={handleSave}
+                activeOpacity={0.8}
               >
-                <Text className="text-white font-bold text-xl">Save Log</Text>
+                <Text className="text-black font-bold text-sm uppercase tracking-widest">Save Maintenance Log</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </BlurView>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }

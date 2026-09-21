@@ -62,7 +62,9 @@
     },
     "extra": {
       "router": {},
-      "eas": {}
+      "eas": {
+        "projectId": "07c47fe6-aa2a-45c9-b95f-791973d49718"
+      }
     },
     "owner": "rahul.biswas1704"
   }

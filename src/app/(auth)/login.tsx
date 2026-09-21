@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ImageBackground } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export default function LoginScreen() {
@@ -8,6 +8,8 @@ export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const handleSubmit = async () => {
     clearError();
@@ -21,80 +23,98 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1 justify-center px-6"
+    <View className="flex-1 bg-black">
+      <ImageBackground 
+        source={require('../../../assets/images/auth-bg.jpg')} 
+        className="flex-1"
+        resizeMode="cover"
       >
-        <View className="items-center mb-10">
-          <Ionicons name="speedometer" size={80} color="#E0FF00" />
-          <Text className="text-white text-4xl font-black uppercase tracking-widest mt-4">Ride-Up</Text>
-          <Text className="text-textSecondary text-sm font-bold tracking-widest uppercase mt-2">
-            {isLogin ? 'Welcome Back' : 'Join the Pack'}
-          </Text>
-        </View>
-
-        {error && (
-          <View className="bg-red-500/20 border border-red-500 rounded-xl p-4 mb-6">
-            <Text className="text-red-500 font-bold text-center">{error}</Text>
-          </View>
-        )}
-
-        <View className="space-y-4">
-          <View>
-            <Text className="text-textSecondary text-xs uppercase tracking-widest font-bold mb-2">Email</Text>
-            <TextInput
-              className="bg-surface text-white p-4 rounded-xl font-bold text-lg border border-white/10"
-              placeholder="rider@example.com"
-              placeholderTextColor="#8E8E93"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-
-          <View className="mt-4">
-            <Text className="text-textSecondary text-xs uppercase tracking-widest font-bold mb-2">Password</Text>
-            <TextInput
-              className="bg-surface text-white p-4 rounded-xl font-bold text-lg border border-white/10"
-              placeholder="••••••••"
-              placeholderTextColor="#8E8E93"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
-        </View>
-
-        <TouchableOpacity
-          className="bg-primary w-full py-5 rounded-2xl items-center shadow-lg mt-8"
-          onPress={handleSubmit}
-          disabled={isLoading}
-          activeOpacity={0.8}
+        <View className="absolute inset-0 bg-black/60" />
+        
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1 justify-center px-6"
         >
-          {isLoading ? (
-            <ActivityIndicator color="#000" />
-          ) : (
-            <Text className="text-black font-black text-lg uppercase tracking-widest">
-              {isLogin ? 'Sign In' : 'Create Account'}
+          <View className="items-center mb-12">
+            <Text className="text-white text-5xl font-light tracking-[0.2em] mb-2">RIDE-UP</Text>
+            <View className="w-12 h-1 bg-[#FF5E00] rounded-full mb-4" />
+            <Text className="text-[#8E8E93] text-xs font-bold tracking-widest uppercase">
+              {isLogin ? 'Welcome Back' : 'Join the Pack'}
             </Text>
-          )}
-        </TouchableOpacity>
+          </View>
 
-        <TouchableOpacity 
-          className="mt-6 items-center"
-          onPress={() => {
-            setIsLogin(!isLogin);
-            clearError();
-          }}
-        >
-          <Text className="text-textSecondary font-bold">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <Text className="text-primary">{isLogin ? 'Sign Up' : 'Log In'}</Text>
-          </Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          {error && (
+            <View className="bg-red-500/20 border border-red-500 rounded-xl p-4 mb-6">
+              <Text className="text-red-500 font-bold text-center">{error}</Text>
+            </View>
+          )}
+
+          <BlurView intensity={20} tint="dark" className="rounded-3xl p-6 border border-white/10 overflow-hidden">
+            <View className="space-y-5">
+              <View>
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Email</Text>
+                <View className={`border-b-2 ${isEmailFocused ? 'border-[#FF5E00]' : 'border-white/20'} pb-2 transition-colors`}>
+                  <TextInput
+                    className="text-white font-medium text-lg px-1"
+                    placeholder="rider@example.com"
+                    placeholderTextColor="#666666"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={() => setIsEmailFocused(true)}
+                    onBlur={() => setIsEmailFocused(false)}
+                  />
+                </View>
+              </View>
+
+              <View className="mt-6">
+                <Text className="text-white/60 text-xs uppercase tracking-widest font-bold mb-2 ml-1">Password</Text>
+                <View className={`border-b-2 ${isPasswordFocused ? 'border-[#FF5E00]' : 'border-white/20'} pb-2 transition-colors`}>
+                  <TextInput
+                    className="text-white font-medium text-lg px-1"
+                    placeholder="••••••••"
+                    placeholderTextColor="#666666"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
+                  />
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              className="bg-white w-full py-4 rounded-full items-center shadow-lg mt-10"
+              onPress={handleSubmit}
+              disabled={isLoading}
+              activeOpacity={0.8}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#000" />
+              ) : (
+                <Text className="text-black font-bold text-sm uppercase tracking-widest">
+                  {isLogin ? 'Sign In' : 'Create Account'}
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className="mt-6 items-center"
+              onPress={() => {
+                setIsLogin(!isLogin);
+                clearError();
+              }}
+            >
+              <Text className="text-[#8E8E93] font-medium text-xs tracking-wider">
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+                <Text className="text-[#FF5E00] font-bold">{isLogin ? 'Sign Up' : 'Log In'}</Text>
+              </Text>
+            </TouchableOpacity>
+          </BlurView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
+    </View>
   );
 }

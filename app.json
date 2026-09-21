@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ride-Up",
-    "slug": "rydyt-clone",
+    "slug": "ride-up",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/rideup-icon.png",
@@ -62,9 +62,7 @@
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "3f604fca-f0cf-424b-878d-4b830ca2f56f"
-      }
+      "eas": {}
     },
     "owner": "rahul.biswas1704"
   }

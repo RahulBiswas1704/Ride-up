@@ -4,11 +4,11 @@
     "slug": "rydyt-clone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/rideup-icon.jpg",
+    "icon": "./assets/images/rideup-icon.png",
     "scheme": "rideup",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/rideup-icon.jpg",
+      "icon": "./assets/images/rideup-icon.png",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "We need your microphone for rider-to-rider group intercom",
         "UIBackgroundModes": [
@@ -19,9 +19,9 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#121212",
-        "foregroundImage": "./assets/images/rideup-icon.jpg",
+        "foregroundImage": "./assets/images/rideup-icon.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/rideup-icon.jpg"
+        "monochromeImage": "./assets/images/rideup-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -36,7 +36,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/rideup-icon.jpg"
+      "favicon": "./assets/images/rideup-icon.png"
     },
     "plugins": [
       "expo-router",
@@ -44,7 +44,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#121212",
-          "image": "./assets/images/rideup-icon.jpg",
+          "image": "./assets/images/rideup-icon.png",
           "imageWidth": 200
         }
       ],

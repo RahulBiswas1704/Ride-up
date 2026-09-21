@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 // @ts-ignore - TypeScript typings for firebase/auth sometimes don't expose getReactNativePersistence correctly
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence, getAuth } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -16,6 +17,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+// getReactNativePersistence is not available on Web and throws an error.
+// We use getAuth() for Web, which sets up default IndexedDB/Local Storage persistence automatically.
+export const auth = Platform.OS === 'web' 
+  ? getAuth(app) 
+  : initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage)
+    });

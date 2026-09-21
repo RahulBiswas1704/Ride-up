@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from 'react-native-maps';
+import { BlurView } from 'expo-blur';
 import { useRideLocation } from '../../hooks/useRideLocation';
 import { useCrashDetection } from '../../hooks/useCrashDetection';
 import { useAgoraVoice } from '../../hooks/useAgoraVoice';
@@ -9,85 +10,21 @@ import SOSCountdownOverlay from '../../components/SOSCountdownOverlay';
 import VoiceCommsHUD from '../../components/VoiceCommsHUD';
 import { Ionicons } from '@expo/vector-icons';
 
-// Dark Mode Map Style JSON for react-native-maps
+// Ultra-Dark Map Style JSON for react-native-maps
 const darkMapStyle = [
-  {
-    "elementType": "geometry",
-    "stylers": [{"color": "#242f3e"}]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [{"color": "#242f3e"}]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#746855"}]
-  },
-  {
-    "featureType": "administrative.locality",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#d59563"}]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#d59563"}]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry",
-    "stylers": [{"color": "#263c3f"}]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#6b9a76"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [{"color": "#38414e"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry.stroke",
-    "stylers": [{"color": "#212a37"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#9ca5b3"}]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [{"color": "#746855"}]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry.stroke",
-    "stylers": [{"color": "#1f2835"}]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#f3d19c"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [{"color": "#17263c"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#515c6d"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.stroke",
-    "stylers": [{"color": "#17263c"}]
-  }
+  { "elementType": "geometry", "stylers": [{"color": "#111111"}] },
+  { "elementType": "labels.text.stroke", "stylers": [{"color": "#111111"}] },
+  { "elementType": "labels.text.fill", "stylers": [{"color": "#888888"}] },
+  { "featureType": "administrative", "elementType": "labels.text.fill", "stylers": [{"color": "#aaaaaa"}] },
+  { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#555555"}] },
+  { "featureType": "poi.park", "elementType": "geometry", "stylers": [{"color": "#181818"}] },
+  { "featureType": "road", "elementType": "geometry", "stylers": [{"color": "#222222"}] },
+  { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111111"}] },
+  { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#666666"}] },
+  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#333333"}] },
+  { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{"color": "#111111"}] },
+  { "featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}] },
+  { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#333333"}] }
 ];
 
 // Mock riders data
@@ -120,10 +57,8 @@ export default function RideScreen() {
   const { location, errorMsg } = useRideLocation();
   const { triggerSOS } = useSOSStore();
 
-  // Initialize Agora Engine (handles mounting/unmounting automatically)
   useAgoraVoice();
 
-  // Wire up the physical crash detection hook
   const handleCrashDetected = useCallback(() => {
     console.log('Physical impact threshold exceeded!');
     triggerSOS();
@@ -144,7 +79,7 @@ export default function RideScreen() {
   };
 
   return (
-    <View style={styles.container} className="bg-background">
+    <View style={styles.container} className="bg-black">
       {/* Full-Screen Map */}
       <MapView 
         style={styles.map}
@@ -154,7 +89,7 @@ export default function RideScreen() {
         showsMyLocationButton={false}
         followsUserLocation={true}
         initialRegion={{
-          latitude: location[1], // location is [long, lat]
+          latitude: location[1],
           longitude: location[0],
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
@@ -167,8 +102,8 @@ export default function RideScreen() {
             coordinate={{ latitude: rider.latitude, longitude: rider.longitude }}
           >
             <View 
-              className={`w-4 h-4 rounded-full border-2 border-[#121212] ${
-                rider.isCaptain ? 'bg-[#FF5E00]' : 'bg-[#E0FF00]'
+              className={`w-5 h-5 rounded-full border-2 border-black shadow-[0_0_10px_rgba(255,94,0,0.8)] ${
+                rider.isCaptain ? 'bg-[#FF5E00]' : 'bg-white'
               }`} 
             />
           </Marker>
@@ -177,7 +112,7 @@ export default function RideScreen() {
         {/* Route Polyline Layer */}
         <Polyline
           coordinates={MOCK_ROUTE}
-          strokeColor="#E0FF00" // Neon Yellow route
+          strokeColor="#FF5E00" // Brand Orange route
           strokeWidth={6}
           lineCap="round"
           lineJoin="round"
@@ -187,38 +122,42 @@ export default function RideScreen() {
 
       {/* HUD Overlays */}
 
-      {/* Top Stats Bar */}
+      {/* Top Stats Bar - Digital Gauge Cluster */}
       <View className="absolute top-12 left-0 right-0 items-center pointer-events-none">
-        <View className="bg-surface/90 px-6 py-3 rounded-full flex-row items-center space-x-6 shadow-lg border border-gray-800">
-          <View className="items-center mr-6">
-            <Text className="text-textSecondary text-xs font-bold uppercase tracking-wider">Speed</Text>
-            <Text className="text-white text-xl font-black">65 <Text className="text-textSecondary text-sm font-bold">km/h</Text></Text>
+        <BlurView intensity={40} tint="dark" className="px-8 py-3 rounded-[30px] flex-row items-center overflow-hidden border border-white/10 shadow-xl">
+          <View className="items-center mr-8">
+            <Text className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Speed</Text>
+            <Text className="text-white text-3xl font-light tracking-tighter">65 <Text className="text-[#FF5E00] text-sm font-bold tracking-normal">km/h</Text></Text>
           </View>
-          <View className="w-[1px] h-8 bg-gray-700 mx-2" />
-          <View className="items-center ml-6">
-            <Text className="text-textSecondary text-xs font-bold uppercase tracking-wider">Distance</Text>
-            <Text className="text-white text-xl font-black">120 <Text className="text-textSecondary text-sm font-bold">km</Text></Text>
+          <View className="w-[1px] h-10 bg-white/10" />
+          <View className="items-center ml-8">
+            <Text className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Distance</Text>
+            <Text className="text-white text-3xl font-light tracking-tighter">120 <Text className="text-white/60 text-sm font-bold tracking-normal">km</Text></Text>
           </View>
-        </View>
+        </BlurView>
       </View>
 
-      {/* Developer Action: Simulate Crash (Bottom Left) */}
+      {/* Developer Action: Simulate Crash (Subtle) */}
       <TouchableOpacity 
-        className="absolute bottom-8 left-6 bg-surface/80 px-4 py-2 rounded-full shadow-lg border border-gray-800 flex-row items-center"
+        className="absolute top-32 left-6 z-10 flex-row items-center opacity-40"
         onPress={handleSimulateCrash}
       >
-        <Ionicons name="pulse" size={16} color="#FF3B30" />
-        <Text className="text-danger font-bold text-xs ml-2">Simulate Crash</Text>
+        <Ionicons name="pulse" size={14} color="#FF3B30" />
+        <Text className="text-[#FF3B30] font-bold text-[10px] uppercase tracking-widest ml-1">Simulate Crash</Text>
       </TouchableOpacity>
       
-      {/* Primary Action: Mark Hazard (Bottom Right) */}
+      {/* Primary Action: Mark Hazard */}
       <TouchableOpacity 
-        className="absolute bottom-6 right-6 bg-primary w-20 h-20 rounded-full items-center justify-center shadow-xl border-4 border-black z-10"
+        className="absolute bottom-6 right-6 z-10"
         onPress={handleMarkHazard}
         activeOpacity={0.8}
       >
-        <Ionicons name="warning-outline" size={36} color="#FFFFFF" />
-        <Text className="text-white text-[10px] font-bold mt-1">HAZARD</Text>
+        <BlurView intensity={30} tint="dark" className="w-20 h-20 rounded-full items-center justify-center border border-white/20 shadow-xl overflow-hidden">
+          <View className="bg-[#FF5E00]/20 w-16 h-16 rounded-full items-center justify-center border border-[#FF5E00]/50">
+            <Ionicons name="warning-outline" size={28} color="#FF5E00" />
+            <Text className="text-[#FF5E00] text-[8px] font-bold mt-1 tracking-widest">HAZARD</Text>
+          </View>
+        </BlurView>
       </TouchableOpacity>
 
       {/* Voice Comms HUD */}
@@ -226,8 +165,8 @@ export default function RideScreen() {
 
       {/* Permissions Error Display */}
       {errorMsg && (
-        <View className="absolute top-32 left-4 right-4 bg-danger p-4 rounded-xl shadow-lg">
-          <Text className="text-white font-bold text-center">{errorMsg}</Text>
+        <View className="absolute top-40 left-4 right-4 bg-red-500/90 border border-red-500 p-4 rounded-xl shadow-lg">
+          <Text className="text-white font-bold text-center tracking-wider">{errorMsg}</Text>
         </View>
       )}
 
